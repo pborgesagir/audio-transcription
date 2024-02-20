@@ -24,7 +24,7 @@ audio_file = st.file_uploader("Faça o uploadload do arquivo em formato MP3", ty
 if audio_file is not None:
     st.audio(audio_file, format='audio/mp3')
     if st.button('Transcreva'):
-        with st.spinner('Transcribing...'):
+        with st.spinner('Transcrevendo...'):
             try:
                 text = transcribe_audio(audio_file)
                 st.success("Transcrição com sucesso 🥳")
