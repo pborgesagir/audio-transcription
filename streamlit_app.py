@@ -19,7 +19,7 @@ def transcribe_audio(audio_file):
 
 # Streamlit app layout
 st.title('MP3 to Text Transcription')
-audio_file = st.file_uploader("Upload an MP3 audio file", type=['mp3'])
+audio_file = st.file_uploader("Faça o uploadload do arquivo em formato MP3", type=['mp3'])
 
 if audio_file is not None:
     st.audio(audio_file, format='audio/mp3')
@@ -27,7 +27,7 @@ if audio_file is not None:
         with st.spinner('Transcribing...'):
             try:
                 text = transcribe_audio(audio_file)
-                st.success("Transcription Completed")
+                st.success("Transcrição Completa")
                 st.write(text)
             except Exception as e:
                 st.error(f"Error during transcription: {e}")
