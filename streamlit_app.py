@@ -27,7 +27,7 @@ if audio_file is not None:
         with st.spinner('Transcribing...'):
             try:
                 text = transcribe_audio(audio_file)
-                st.success("Transcrição Completa")
+                st.success("Transcrição com sucesso 🥳")
                 st.write(text)
             except Exception as e:
                 st.error(f"Error during transcription: {e}")
