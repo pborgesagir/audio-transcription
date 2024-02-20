@@ -18,7 +18,7 @@ def transcribe_audio(audio_file):
             return text
 
 # Streamlit app layout
-st.title('MP3 to Text Transcription')
+st.title('Transcrição de MP3 para texto')
 audio_file = st.file_uploader("Faça o uploadload do arquivo em formato MP3", type=['mp3'])
 
 if audio_file is not None:
