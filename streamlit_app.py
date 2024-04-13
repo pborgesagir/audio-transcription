@@ -14,8 +14,9 @@ st.set_page_config(
 # Function to split and transcribe audio
 def transcribe_audio(audio_file):
     recognizer = sr.Recognizer()
-    # Convert MP3 to WAV using temporary files
-    audio_segment = AudioSegment.from_file_using_temporary_files(audio_file)
+    # Convert MP3/M4A to WAV using temporary files
+    audio_format = 'mp3' if audio_file.name.endswith('.mp3') else 'm4a'
+    audio_segment = AudioSegment.from_file_using_temporary_files(audio_file, format=audio_format)
     # Define the length for each split (e.g., 30 seconds)
     chunk_length_ms = 30000  # 30 seconds in milliseconds
     chunks = make_chunks(audio_segment, chunk_length_ms)
@@ -46,11 +47,11 @@ def make_chunks(audio_segment, chunk_length_ms):
     return [audio_segment[i:i + chunk_length_ms] for i in range(0, len(audio_segment), chunk_length_ms)]
 
 # Streamlit app layout
-st.title('Transcrição de MP3 para texto')
-audio_file = st.file_uploader("Faça o upload do arquivo em formato MP3", type=['mp3'])
+st.title('Transcrição de MP3 e M4A para texto')
+audio_file = st.file_uploader("Faça o upload do arquivo em formato MP3 ou M4A", type=['mp3', 'm4a'])
 
 if audio_file is not None:
-    st.audio(audio_file, format='audio/mp3')
+    st.audio(audio_file, format='audio/mp3' if audio_file.name.endswith('.mp3') else 'audio/m4a')
     if st.button('Transcreva'):
         with st.spinner('Transcrevendo...'):
             try:
@@ -59,5 +60,3 @@ if audio_file is not None:
                 st.write(text)
             except Exception as e:
                 st.error(f"Error during transcription: {e}")
-
-
