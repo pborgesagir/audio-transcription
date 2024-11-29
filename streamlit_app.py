@@ -53,7 +53,7 @@ def transcribe_audio(audio_file):
     return full_text
 
 # Streamlit app layout
-st.title('Conversão e Transcrição - SERCOM')
+st.title('Site de Conversão e Transcrição da Kássyllinha')
 tab1, tab2 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio"])
 
 # PDF to PPT Conversion
