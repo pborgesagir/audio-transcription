@@ -5,10 +5,12 @@ import fitz  # PyMuPDF
 import speech_recognition as sr
 from pydub import AudioSegment
 import io
+import ezdxf
+import pandas as pd
 
 # Set the page configuration
 st.set_page_config(
-    page_title='Site de Conversão e Transcrição da Kássyllinha',
+    page_title='Conversão e Transcrição - SERCOM',
     layout='wide',
     page_icon="https://media.licdn.com/dms/image/C4D0BAQHXylmAyGyD3A/company-logo_200_200/0/1630570245289?e=2147483647&v=beta&t=Dxas2us5gteu0P_9mdkQBwJEyg2aoc215Vrk2phu7Bs",
     initial_sidebar_state='auto'
@@ -52,9 +54,19 @@ def transcribe_audio(audio_file):
                     st.write(f"Could not request results from Google Speech Recognition service; {e}")
     return full_text
 
+# Function to extract locations and areas from DWG file
+def extract_locations_from_dwg(dwg_file):
+    doc = ezdxf.readfile(dwg_file)
+    data = []
+    for entity in doc.modelspace().query('TEXT MTEXT'):
+        location_name = entity.plain_text() if hasattr(entity, 'plain_text') else entity.text
+        area = entity.dxf.text_height if hasattr(entity.dxf, 'text_height') else None
+        data.append({'Location Name': location_name, 'Area': area})
+    return pd.DataFrame(data)
+
 # Streamlit app layout
-st.title('Site de Conversão e Transcrição da Kássyllinha')
-tab1, tab2 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio"])
+st.title('Conversão e Transcrição - SERCOM')
+tab1, tab2, tab3 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio", "DWG para CSV"])
 
 # PDF to PPT Conversion
 with tab1:
@@ -94,3 +106,26 @@ with tab2:
                     st.write(text)
                 except Exception as e:
                     st.error(f"Error during transcription: {e}")
+
+# DWG to CSV Conversion
+with tab3:
+    st.subheader('DWG para CSV')
+    dwg_file = st.file_uploader("Faça o upload do arquivo em formato DWG", type=['dwg'])
+
+    if dwg_file is not None:
+        if st.button('Extrair Dados e Baixar CSV'):
+            with st.spinner('Processando...'):
+                try:
+                    data = extract_locations_from_dwg(dwg_file)
+                    csv_io = io.BytesIO()
+                    data.to_csv(csv_io, index=False)
+                    csv_io.seek(0)
+                    st.success("Processamento concluído 🥳")
+                    st.download_button(
+                        label="Baixar CSV",
+                        data=csv_io,
+                        file_name="locations_and_areas.csv",
+                        mime="text/csv"
+                    )
+                except Exception as e:
+                    st.error(f"Error during processing: {e}")
