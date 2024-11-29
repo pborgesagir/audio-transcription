@@ -7,7 +7,7 @@ from pydub import AudioSegment
 import io
 import ezdxf
 import pandas as pd
-import tempfile  # To handle temporary files
+import tempfile
 
 # Set the page configuration
 st.set_page_config(
@@ -55,26 +55,25 @@ def transcribe_audio(audio_file):
                     st.write(f"Could not request results from Google Speech Recognition service; {e}")
     return full_text
 
-# Function to extract locations and areas from DWG file
-def extract_locations_from_dwg(dwg_file):
-    # Use a temporary file to save the uploaded DWG file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".dwg") as temp_file:
-        temp_file.write(dwg_file.read())  # Write the uploaded file content to the temp file
+# Function to extract locations and areas from DXF file
+def extract_locations_from_dxf(dxf_file):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dxf") as temp_file:
+        temp_file.write(dxf_file.read())  # Write the uploaded file content to the temp file
         temp_file_path = temp_file.name
     
-    # Process the DWG file with ezdxf
+    # Read DXF file with ezdxf
     doc = ezdxf.readfile(temp_file_path)
     data = []
     for entity in doc.modelspace().query('TEXT MTEXT'):
-        location_name = entity.plain_text() if hasattr(entity, 'plain_text') else entity.text
-        area = entity.dxf.text_height if hasattr(entity.dxf, 'text_height') else None
+        location_name = entity.plain_text() if hasattr(entity, 'plain_text') else entity.dxf.text
+        area = entity.dxf.height if hasattr(entity.dxf, 'height') else None
         data.append({'Location Name': location_name, 'Area': area})
     
     return pd.DataFrame(data)
 
 # Streamlit app layout
 st.title('Conversão e Transcrição - SERCOM')
-tab1, tab2, tab3 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio", "DWG para CSV"])
+tab1, tab2, tab3 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio", "DXF para CSV"])
 
 # PDF to PPT Conversion
 with tab1:
@@ -115,16 +114,16 @@ with tab2:
                 except Exception as e:
                     st.error(f"Error during transcription: {e}")
 
-# DWG to CSV Conversion
+# DXF to CSV Conversion
 with tab3:
-    st.subheader('DWG para CSV')
-    dwg_file = st.file_uploader("Faça o upload do arquivo em formato DWG", type=['dwg'])
+    st.subheader('DXF para CSV')
+    dxf_file = st.file_uploader("Faça o upload do arquivo em formato DXF", type=['dxf'])
 
-    if dwg_file is not None:
+    if dxf_file is not None:
         if st.button('Extrair Dados e Baixar CSV'):
             with st.spinner('Processando...'):
                 try:
-                    data = extract_locations_from_dwg(dwg_file)
+                    data = extract_locations_from_dxf(dxf_file)
                     csv_io = io.BytesIO()
                     data.to_csv(csv_io, index=False)
                     csv_io.seek(0)
