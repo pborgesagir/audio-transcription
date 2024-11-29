@@ -7,6 +7,7 @@ from pydub import AudioSegment
 import io
 import ezdxf
 import pandas as pd
+import tempfile  # To handle temporary files
 
 # Set the page configuration
 st.set_page_config(
@@ -56,12 +57,19 @@ def transcribe_audio(audio_file):
 
 # Function to extract locations and areas from DWG file
 def extract_locations_from_dwg(dwg_file):
-    doc = ezdxf.readfile(dwg_file)
+    # Use a temporary file to save the uploaded DWG file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dwg") as temp_file:
+        temp_file.write(dwg_file.read())  # Write the uploaded file content to the temp file
+        temp_file_path = temp_file.name
+    
+    # Process the DWG file with ezdxf
+    doc = ezdxf.readfile(temp_file_path)
     data = []
     for entity in doc.modelspace().query('TEXT MTEXT'):
         location_name = entity.plain_text() if hasattr(entity, 'plain_text') else entity.text
         area = entity.dxf.text_height if hasattr(entity.dxf, 'text_height') else None
         data.append({'Location Name': location_name, 'Area': area})
+    
     return pd.DataFrame(data)
 
 # Streamlit app layout
