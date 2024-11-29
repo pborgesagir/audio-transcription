@@ -7,3 +7,5 @@ pdf2image
 poppler-utils
 fitz 
 pymupdf
+ezdxf
+pandas
