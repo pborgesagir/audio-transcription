@@ -1,7 +1,7 @@
 import streamlit as st
 from pptx import Presentation
 from pptx.util import Inches
-from pdf2image import convert_from_bytes
+import fitz  # PyMuPDF
 import io
 
 # Set the page configuration
@@ -13,19 +13,20 @@ st.set_page_config(
 )
 
 # Function to convert PDF to PowerPoint with each page as an image
-def convert_pdf_to_ppt_with_images(pdf_file):
-    # Convert PDF pages to images
-    images = convert_from_bytes(pdf_file.read())
+def convert_pdf_to_ppt_with_fitz(pdf_file):
+    # Open the PDF file with fitz
+    pdf_document = fitz.open(stream=pdf_file.read(), filetype="pdf")
     # Create a PowerPoint presentation
     presentation = Presentation()
     
-    for image in images:
+    for page_number in range(len(pdf_document)):
+        # Get the page as an image
+        page = pdf_document.load_page(page_number)
+        pix = page.get_pixmap()
+        image_stream = io.BytesIO(pix.tobytes("png"))
+        
         # Add a blank slide
         slide = presentation.slides.add_slide(presentation.slide_layouts[5])  # Blank layout
-        # Save the image to a BytesIO stream
-        image_stream = io.BytesIO()
-        image.save(image_stream, format='PNG')
-        image_stream.seek(0)
         # Add the image to the slide
         slide.shapes.add_picture(image_stream, Inches(0), Inches(0), width=Inches(10), height=Inches(7.5))
     
@@ -40,7 +41,7 @@ if pdf_file is not None:
         with st.spinner('Convertendo...'):
             try:
                 # Convert PDF to PPT with images
-                presentation = convert_pdf_to_ppt_with_images(pdf_file)
+                presentation = convert_pdf_to_ppt_with_fitz(pdf_file)
                 # Save the presentation to a BytesIO stream
                 ppt_io = io.BytesIO()
                 presentation.save(ppt_io)
