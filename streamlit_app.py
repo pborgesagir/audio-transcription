@@ -73,7 +73,7 @@ def extract_locations_from_dxf(dxf_file):
 
 # Streamlit app layout
 st.title('Conversão e Transcrição - SERCOM')
-tab1, tab2, tab3 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio", "DXF para CSV"])
+tab1, tab2, tab3 = st.tabs(["Conversão PDF para PPT", "Transcrição de Áudio", "DXF/DWG para CSV"])
 
 # PDF to PPT Conversion
 with tab1:
@@ -114,25 +114,29 @@ with tab2:
                 except Exception as e:
                     st.error(f"Error during transcription: {e}")
 
-# DXF to CSV Conversion
+# DXF/DWG to CSV Conversion
 with tab3:
-    st.subheader('DXF para CSV')
-    dxf_file = st.file_uploader("Faça o upload do arquivo em formato DXF", type=['dxf'])
+    st.subheader('DXF/DWG para CSV')
+    dwg_or_dxf_file = st.file_uploader("Faça o upload do arquivo em formato DXF ou DWG", type=['dxf', 'dwg'])
 
-    if dxf_file is not None:
-        if st.button('Extrair Dados e Baixar CSV'):
-            with st.spinner('Processando...'):
-                try:
-                    data = extract_locations_from_dxf(dxf_file)
-                    csv_io = io.BytesIO()
-                    data.to_csv(csv_io, index=False)
-                    csv_io.seek(0)
-                    st.success("Processamento concluído 🥳")
-                    st.download_button(
-                        label="Baixar CSV",
-                        data=csv_io,
-                        file_name="locations_and_areas.csv",
-                        mime="text/csv"
-                    )
-                except Exception as e:
-                    st.error(f"Error during processing: {e}")
+    if dwg_or_dxf_file is not None:
+        file_extension = dwg_or_dxf_file.name.split('.')[-1].lower()
+        if file_extension == 'dwg':
+            st.error("Arquivos DWG não são suportados diretamente. Converta para DXF e tente novamente.")
+        elif file_extension == 'dxf':
+            if st.button('Extrair Dados e Baixar CSV'):
+                with st.spinner('Processando...'):
+                    try:
+                        data = extract_locations_from_dxf(dwg_or_dxf_file)
+                        csv_io = io.BytesIO()
+                        data.to_csv(csv_io, index=False)
+                        csv_io.seek(0)
+                        st.success("Processamento concluído 🥳")
+                        st.download_button(
+                            label="Baixar CSV",
+                            data=csv_io,
+                            file_name="locations_and_areas.csv",
+                            mime="text/csv"
+                        )
+                    except Exception as e:
+                        st.error(f"Error during processing: {e}")
