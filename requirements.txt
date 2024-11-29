@@ -4,3 +4,4 @@ SpeechRecognition
 python-pptx
 PyPDF2
 pdf2image
+poppler-utils
