@@ -8,7 +8,7 @@ import io
 
 # Set the page configuration
 st.set_page_config(
-    page_title='Conversão e Transcrição - SERCOM',
+    page_title='Conversão e Transcrição da KFS',
     layout='wide',
     page_icon="https://media.licdn.com/dms/image/C4D0BAQHXylmAyGyD3A/company-logo_200_200/0/1630570245289?e=2147483647&v=beta&t=Dxas2us5gteu0P_9mdkQBwJEyg2aoc215Vrk2phu7Bs",
     initial_sidebar_state='auto'
