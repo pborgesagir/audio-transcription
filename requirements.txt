@@ -9,3 +9,4 @@ fitz
 pymupdf
 ezdxf
 pandas
+dwgread
