@@ -1,3 +1,5 @@
 streamlit
 pydub
 SpeechRecognition
+python-pptx
+PyPDF2
